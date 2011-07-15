@@ -33,7 +33,10 @@ Finally install the TracRpcProtocolsPlugin_ (requires Mercurial_)::
   python setup.py install
   cd ..
 
-When that's done, you can create a new Trac environment in the normal way::
+Configuration
+=============
+
+Create a new Trac environment::
 
   trac-admin amf_test initenv
 
@@ -46,20 +49,19 @@ Assign administrator permissions to the Trac user::
 
   trac-admin amf_test permission add admin TRAC_ADMIN
 
-Enable the plugins by creating or adding the following to the ``[components]``
-section in ``amf_test/conf/trac.ini``::
+Enable the plugins in the ``[components]`` section of
+``amf_test/conf/trac.ini``::
 
   [components] 
   tracrpc.* = enabled
   tracrpcext._amf.* = enabled
 
 Enabling the console logger for Trac is useful for troubleshooting. Update the
-``[logging]`` section like this (or use the Trac admin console)::
+``[logging]`` section like this (or use the Trac `web admin`_)::
 
   [logging]
   log_level = DEBUG
   log_type = stderr
-
 
 Now start the ``tracd`` development server::
 
@@ -71,20 +73,21 @@ You should now be able to browse your environment at http://localhost:8000.
 Testing the Trac remoting gateway
 =================================
 
-Now, you're ready to test the PyAMF gateway. The 
-first thing to do is to create a new Python AMF client. Create a file
+Now it's time to test the Trac remoting gateway.
+
+Python
+------
+
+The first thing to do is to create a new Python AMF client. Create a file
 called ``client.py`` file wherever you want with the following contents:
 
 .. literalinclude:: ../examples/gateways/trac/client.py
    :linenos:
 
-This sets up a ``GatewayController`` WSGI app that has three services that 
-can be called from Flex: ``echo``, ``sum``, and ``scramble``, which each do
-exactly what they say they do. 
-
+This ...[TODO]...
    
-Create a Flex Client
-====================
+Flex
+----
 
 Now we're ready for the big time event, we can create a brand new Flex client
 which talks to our Trac hosted PyAMF services. This little tutorial pretty much
@@ -93,7 +96,7 @@ a Trac instance.
 
 Here's the MXML:
 
-.. literalinclude:: ../examples/gateways/trac/app.mxml
+.. literalinclude:: ../examples/gateways/trac/flex/app.mxml
    :language: xml
    :linenos:
 
@@ -104,3 +107,4 @@ Here's the MXML:
 .. _Trac XML-RPC Plugin:        http://trac-hacks.org/wiki/XmlRpcPlugin
 .. _Subversion:                 http://subversion.apache.org
 .. _Mercurial:                  http://mercurial.selenic.com
+.. _web admin:                  http://localhost:8000/admin/general/logging
