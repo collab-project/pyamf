@@ -12,6 +12,7 @@
    sqlalchemy.rst
    cherrypy.rst
    turbogears.rst
+   trac.rst
    werkzeug.rst
    stackless.rst
    web2py.rst
