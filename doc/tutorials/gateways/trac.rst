@@ -81,11 +81,12 @@ Python
 The first thing to do is to create a new Python AMF client. Create a file
 called ``client.py`` file wherever you want with the following contents:
 
-.. literalinclude:: ../examples/gateways/trac/client.py
+.. literalinclude:: ../examples/gateways/trac/python/client.py
    :linenos:
 
-This ...[TODO]...
-   
+This should print the current API version.
+
+
 Flex
 ----
 
@@ -96,7 +97,7 @@ a Trac instance.
 
 Here's the MXML:
 
-.. literalinclude:: ../examples/gateways/trac/flex/app.mxml
+.. literalinclude:: ../examples/gateways/trac/flex/src/app.mxml
    :language: xml
    :linenos:
 
