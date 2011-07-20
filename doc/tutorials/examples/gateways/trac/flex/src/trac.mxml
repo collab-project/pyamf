@@ -10,11 +10,14 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.abdulqabiz.net.HTTPURLLoader;
+			
 			import mx.utils.Base64Encoder;
 			
 			private var _connection 	: NetConnection;
 			private var _responder		: Responder;
-			private var _credentials	: Base64Encoder;
+			
+			private var loader:HTTPURLLoader;
 			
 			protected function getApiVersion(event:MouseEvent):void
 			{
@@ -23,7 +26,7 @@
 				_responder = new Responder( displayVersion, remoteFault );
 				
 				// call service
-				_connection.call("system.getAPIVersion", _responder );
+				//_connection.call("system.getAPIVersion", _responder );
 			}
 			
 			protected function getTickets(event:MouseEvent):void
@@ -33,23 +36,81 @@
 				_responder = new Responder( displayTickets, remoteFault );
 				
 				// call service
-				_connection.call("ticket.query", _responder, "max=0");
+				//_connection.call("ticket.query", _responder, "max=0");
 			}
 			
 			private function connect():void
 			{
 				if ( host_txt.text && username_txt.text && password_txt.text )
 				{
-					_credentials = new Base64Encoder();
-					_credentials.encode( username_txt.text + ":" + password_txt.text );
+					loader = new HTTPURLLoader();
+					loader.addEventListener("complete", onComplete);
+					loader.addEventListener("httpStatus", onHTTPStatus);
+					loader.addEventListener("progress", onProgress);
 					
 					// connection
 					_connection = new NetConnection();
 					_connection.addEventListener( NetStatusEvent.NET_STATUS, onFault );
-					_connection.addHeader("Authorization", true, "Basic " +
-						                  _credentials.toString());
-					_connection.connect( host_txt.text );
+					loadURL();
 				}
+			}
+			
+			private function onComplete(event:Event):void
+			{
+				//headers stroed as name-value(hash map)
+				var rh:Object = HTTPURLLoader(event.target).responseHeaders;
+				
+				var str:String = "";
+				for(var p:String in rh)
+				{
+					str+= p + ":" + rh[p] + "\n";
+				}
+				
+				trace("Response Headers: \n" + str + "\n\n");
+				
+				//data property holds the content
+				//trace("Body Content:\n" + HTTPURLLoader(event.target).data + "\n\n");
+				
+			}
+			
+			private function onProgress(event:ProgressEvent):void
+			{
+				//bytesTotal is not accurate, and its 0 if server doesn't send Content-Length header.
+				trace( "Event: progress:-\n" + "bytesLoaded: " + event.bytesLoaded + "\n\n" );
+			}
+			
+			private function onHTTPStatus(event:HTTPStatusEvent):void
+			{
+				//if httpStatus is 401, 403, 404, 500, 501, socket is closed.
+				
+				trace( "Event: httpStatus (" + event.status + ")\n\n");
+				
+				if ( event.status == 200 )
+				{
+					_connection.connect( host_txt.text );
+					_connection.call("system.getAPIVersion", _responder );
+				}
+			} 
+			
+			private function loadURL():void
+			{
+				var request:URLRequest = new URLRequest();
+				
+				//call listsubs method of Bloglines
+				request.url = host_txt.text;
+				
+				//create HTTP Auth request header
+				var authHeader:URLRequestHeader = new URLRequestHeader();
+				var encoder64:Base64Encoder = new Base64Encoder();
+				authHeader.name = 'Authorization';
+				encoder64.encode(username_txt.text + ":" + password_txt.text);
+				authHeader.value = 'Basic ' + encoder64.flush();
+				
+				//add the header to request
+				request.requestHeaders.push(authHeader);
+				
+				//make the request.
+				loader.load(request);
 			}
 		
 			private function displayVersion(re:*): void
@@ -94,7 +155,7 @@
 			<s:FormLayout gap="-14"/>
 		</s:layout>
 		<s:FormItem label="Host">
-			<s:TextInput id="host_txt" text="http://localhost:8000/login/amfrpc"
+			<s:TextInput id="host_txt" text="http://localhost/trac/login/amfrpc"
 						 width="300"/>
 		</s:FormItem>
 		<s:FormItem label="Username">
