@@ -10,8 +10,11 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import mx.utils.ObjectUtil;
+			
 			private var _connection : NetConnection;
 			private var _responder	: Responder;
+			
 			private const _url		: String = 'http://localhost:8000/login/rpc';
 			private const _username	: String = 'admin';
 			private const _password	: String = 'admin';
@@ -24,7 +27,7 @@
 				_connection.connect( _url );
 				
 				// add authentication
-				// http://help.adobe.com/en_US/FlashPlatform/reference/actionscript/3/mx/utils/Base64Encoder.html
+				// mx/utils/Base64Encoder.html
 				var auth:String = '123'; //base64.encodestring('%s:%s' % (_username, _password))[:-1];
 				_connection.addHeader("Authorization", true, "Basic " + auth);
 				
@@ -32,17 +35,18 @@
 				_connection.call("system.getAPIVersion", _responder);
 			}
 		
-			import mx.utils.ObjectUtil;
-			
-			private function displayResult(re:*): void {
+			private function displayResult(re:*): void
+			{
 				result.text += ObjectUtil.toString(re) + "\n";
 			}
 			
-			private function scrambleResult(re:*): void {
+			private function scrambleResult(re:*): void 
+			{
 				result.text = re.result as String;
 			}
 			
-			private function remoteFault(fault:*): void {
+			private function remoteFault(fault:*): void
+			{
 				result.text = fault.fault.faultDetail;
 			}
 		]]>

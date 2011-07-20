@@ -23,4 +23,3 @@ service = client.getService('system')
 version = service.getAPIVersion()
 
 print "Trac-RPC version: %s.%s" % (version[0], version[1])
-
