@@ -12,12 +12,16 @@
 		<![CDATA[
 			import com.abdulqabiz.net.HTTPURLLoader;
 			
+			import mx.messaging.messages.AbstractMessage;
+			import mx.messaging.messages.AsyncMessage;
+			import mx.messaging.messages.ISmallMessage;
 			import mx.utils.Base64Encoder;
+			import mx.utils.ObjectUtil;
 			
 			private var _connection 	: NetConnection;
 			private var _responder		: Responder;
 			
-			private var loader:HTTPURLLoader;
+			private var loader			: URLLoader;
 			
 			protected function getApiVersion(event:MouseEvent):void
 			{
@@ -43,10 +47,12 @@
 			{
 				if ( host_txt.text && username_txt.text && password_txt.text )
 				{
+					/*
 					loader = new HTTPURLLoader();
 					loader.addEventListener("complete", onComplete);
 					loader.addEventListener("httpStatus", onHTTPStatus);
 					loader.addEventListener("progress", onProgress);
+					*/
 					
 					// connection
 					_connection = new NetConnection();
@@ -57,6 +63,7 @@
 			
 			private function onComplete(event:Event):void
 			{
+				/*
 				//headers stroed as name-value(hash map)
 				var rh:Object = HTTPURLLoader(event.target).responseHeaders;
 				
@@ -67,10 +74,11 @@
 				}
 				
 				trace("Response Headers: \n" + str + "\n\n");
-				
+				*/
 				//data property holds the content
-				//trace("Body Content:\n" + HTTPURLLoader(event.target).data + "\n\n");
-				
+				var ba:ByteArray = loader.data as ByteArray;
+				var o:Object = ba.readObject();
+				trace(loader.data);
 			}
 			
 			private function onProgress(event:ProgressEvent):void
@@ -87,30 +95,36 @@
 				
 				if ( event.status == 200 )
 				{
-					_connection.connect( host_txt.text );
-					_connection.call("system.getAPIVersion", _responder );
+					//_connection.call("system.getAPIVersion", _responder );
 				}
 			} 
 			
 			private function loadURL():void
 			{
+				var ba:ByteArray = new ByteArray();
+				ba.writeObject({ target: "system.getAPIVersion" });
+				
 				var request:URLRequest = new URLRequest();
-				
-				//call listsubs method of Bloglines
 				request.url = host_txt.text;
+				request.method = URLRequestMethod.POST;
+				request.data = ba;
+				request.contentType = "application/x-amf";
 				
-				//create HTTP Auth request header
+				// add HTTP Auth request header
 				var authHeader:URLRequestHeader = new URLRequestHeader();
 				var encoder64:Base64Encoder = new Base64Encoder();
 				authHeader.name = 'Authorization';
 				encoder64.encode(username_txt.text + ":" + password_txt.text);
 				authHeader.value = 'Basic ' + encoder64.flush();
-				
-				//add the header to request
 				request.requestHeaders.push(authHeader);
 				
+				loader = new URLLoader(request);
+				loader.dataFormat = URLLoaderDataFormat.BINARY;
+				loader.addEventListener(Event.COMPLETE, onComplete);
+				loader.addEventListener(IOErrorEvent.IO_ERROR, remoteFault );
+				
 				//make the request.
-				loader.load(request);
+				loader.load( request );
 			}
 		
 			private function displayVersion(re:*): void
@@ -155,7 +169,7 @@
 			<s:FormLayout gap="-14"/>
 		</s:layout>
 		<s:FormItem label="Host">
-			<s:TextInput id="host_txt" text="http://localhost/trac/login/amfrpc"
+			<s:TextInput id="host_txt" text="http://collab.dev/trac/login/amfrpc"
 						 width="300"/>
 		</s:FormItem>
 		<s:FormItem label="Username">
