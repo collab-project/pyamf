@@ -108,7 +108,7 @@
 				request.url = host_txt.text;
 				request.method = URLRequestMethod.POST;
 				request.data = ba;
-				request.contentType = "application/x-amf";
+				//request.contentType = "application/x-amf";
 				
 				// add HTTP Auth request header
 				var authHeader:URLRequestHeader = new URLRequestHeader();
@@ -119,7 +119,7 @@
 				request.requestHeaders.push(authHeader);
 				
 				loader = new URLLoader(request);
-				loader.dataFormat = URLLoaderDataFormat.BINARY;
+				//loader.dataFormat = URLLoaderDataFormat.BINARY;
 				loader.addEventListener(Event.COMPLETE, onComplete);
 				loader.addEventListener(IOErrorEvent.IO_ERROR, remoteFault );
 				
